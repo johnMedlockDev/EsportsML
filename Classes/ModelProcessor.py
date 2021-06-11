@@ -23,10 +23,6 @@ class ModelProcessor:
     def PredictLinearRegression(self):
         y_pred = pd.DataFrame(self.__regressor__.predict(self.__x_train__))
 
-        topytest = self.__y_test__[0].head()
-        topypred = y_pred.head()
-
-        df = pd.DataFrame({'Actual': topytest,
-                           'Predicted': topypred})
-
-        print(df)
+        result = pd.concat([self.__y_test__.head(), y_pred.head()],
+                           ignore_index=True, sort=False, axis=1)
+        print(result)
