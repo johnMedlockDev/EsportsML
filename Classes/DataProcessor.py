@@ -1,4 +1,5 @@
 from typing import List
+from unittest import result
 import pandas as pd
 from pandas import DataFrame
 
@@ -18,6 +19,7 @@ class DataProcessor:
         self.__ReplaceCatsWithDummies__()
         self.__SplitData__()
         self.__NormalizeDataFrames__()
+        self.__MakeNpArraysDataFrames__()
 
     def __ReadCSV__(self) -> None:
 
@@ -228,9 +230,12 @@ class DataProcessor:
         self.__df__ = pd.get_dummies(self.__df__,
                                      columns=['position'])
 
+        self.__dfColumnNames__ = self.__df__.columns.tolist()
+
     def __NormalizeDataFrames__(self) -> None:
         scaler = StandardScaler()
         self.__x_train__ = scaler.fit_transform(self.__x_train__)
+
         self.__x_test__ = scaler.fit_transform(self.__x_test__)
 
     def DisplayColumns(self) -> None:
@@ -248,6 +253,21 @@ class DataProcessor:
 
     def GetYTestDataFrame(self) -> DataFrame:
         return self.__y_test__
+
+    def __MakeNpArraysDataFrames__(self):
+        self.__dfColumnNames__.remove("result")
+
+        self.__x_train__ = pd.DataFrame(self.__x_train__)
+        self.__x_train__.columns = self.__dfColumnNames__
+
+        self.__x_test__ = pd.DataFrame(self.__x_test__)
+        self.__x_test__.columns = self.__dfColumnNames__
+
+        self.__y_train__ = pd.DataFrame(self.__y_train__)
+        self.__x_test__.columns = self.__dfColumnNames__
+
+        self.__y_test__ = pd.DataFrame(self.__y_test__)
+        self.__x_test__.columns = self.__dfColumnNames__
 
     def GetDataFrames(self):
         return [self.__x_train__, self.__x_test__, self.__y_train__, self.__y_test__]

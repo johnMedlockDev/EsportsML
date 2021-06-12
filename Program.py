@@ -16,5 +16,5 @@ dataProcessor = DataProcessor(EFile.PLAYER)
 
 modelProcessor = ModelProcessor(dataProcessor.GetDataFrames())
 
-modelProcessor.PredictLinearRegression()
+print(modelProcessor.GetLogisticCoefficients())
 # processedDf = dataProcessor.GetDataFrame()
