@@ -1,11 +1,11 @@
 from typing import List
-from unittest import result
 import pandas as pd
 from pandas import DataFrame
 
 import numpy as np
+from sklearn import datasets
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelBinarizer, StandardScaler
+from sklearn.preprocessing import StandardScaler
 
 from Enums.EFile import EFile
 
@@ -15,8 +15,8 @@ class DataProcessor:
     def __init__(self, file: EFile) -> None:
         self.__fileContext__ = file.value
         self.__ReadCSV__()
-        self.__DropColumns__()
-        self.__ReplaceCatsWithDummies__()
+        self.__ReplaceCategoricalDataWithDummyData__()
+        self.__SelectFeatures__()
         self.__SplitData__()
         self.__NormalizeDataFrames__()
         self.__MakeNpArraysDataFrames__()
@@ -25,212 +25,28 @@ class DataProcessor:
 
         self.__df__ = pd.read_csv(f"Data\\{self.__fileContext__}.csv")
 
-    def __DropColumns__(self) -> None:
-
-        columnsToDrop = self.__GetColumnsToDrop__()
-        self.__df__ = self.__df__.drop(columns=columnsToDrop)
-
-    def __GetColumnsToDrop__(self) -> List:
-
-        if self.__fileContext__ == "Player":
-            return ["datacompleteness",
-                    "url",
-                    "league",
-                    "split",
-                    "playoffs",
-                    "year",
-                    "patch",
-                    "side",
-                    "playerid",
-                    "ban1",
-                    "ban2",
-                    "ban3",
-                    "ban4",
-                    "ban5",
-                    "firstdragon",
-                    "dragons",
-                    "opp_dragons",
-                    "elementaldrakes",
-                    "opp_elementaldrakes",
-                    "infernals",
-                    "mountains",
-                    "clouds",
-                    "oceans",
-                    "dragons (type unknown)",
-                    "elders",
-                    "opp_elders",
-                    "firstherald",
-                    "heralds",
-                    "opp_heralds",
-                    "firstbaron",
-                    "barons",
-                    "opp_barons",
-                    "firsttower",
-                    "towers",
-                    "opp_towers",
-                    "firstmidtower",
-                    "firsttothreetowers",
-                    "inhibitors",
-                    "opp_inhibitors",
-                    "gspd",
-                    "teamkills",
-                    "teamdeaths",
-                    "goldat15",
-                    "xpat15",
-                    "csat15",
-                    "killsat15",
-                    "assistsat15",
-                    "deathsat15",
-                    "dpm",
-                    "damageshare",
-                    "damagetakenperminute",
-                    "damagemitigatedperminute",
-                    "wpm",
-                    "wardskilled",
-                    "wcpm",
-                    "controlwardsbought",
-                    "visionscore",
-                    "vspm",
-                    "totalgold",
-                    "earned gpm",
-                    "earnedgoldshare",
-                    "goldspent",
-                    "minionkills",
-                    "monsterkills",
-                    "monsterkillsownjungle",
-                    "monsterkillsenemyjungle",
-                    "cspm",
-                    "golddiffat10",
-                    "xpdiffat10",
-                    "csdiffat10",
-                    "golddiffat15",
-                    "xpdiffat15",
-                    "csdiffat15",
-                    "team kpm",
-                    "ckpm",
-                    "opp_goldat15",
-                    "opp_xpat15",
-                    "opp_csat15",
-                    "opp_killsat15",
-                    "opp_assistsat15",
-                    "opp_deathsat15",
-                    "opp_killsat10",
-                    "opp_assistsat10",
-                    "opp_deathsat10",
-                    "opp_goldat10",
-                    "opp_xpat10",
-                    "opp_csat10",
-                    "date",
-                    "champion",
-                    "goldat10",
-                    "xpat10",
-                    "csat10",
-                    "killsat10",
-                    "assistsat10",
-                    "deathsat10",
-                    "game",
-                    "doublekills",
-                    "triplekills",
-                    "quadrakills",
-                    "pentakills",
-                    "firstblood",
-                    "firstbloodkill",
-                    "firstbloodassist",
-                    "firstbloodvictim",
-                    "gamelength", "gameid", "player", "team"]
-
-        return ["gameid",
-                "datacompleteness",
-                "url",
-                "league",
-                "year",
-                "split",
-                "playoffs",
-                "date",
-                "patch",
-                "playerid",
-                "side",
-                "position",
-                "player",
-                "champion",
-                "ban1",
-                "ban2",
-                "ban3",
-                "ban4",
-                "ban5",
-                "firstbloodkill",
-                "firstbloodassist",
-                "firstbloodvictim",
-                "dragons (type unknown)",
-                "damageshare",
-                "earnedgoldshare",
-                "total cs",
-                "dpm",
-                "damageshare",
-                "damagetakenperminute",
-                "damagemitigatedperminute",
-                "wpm",
-                "wardskilled",
-                "wcpm",
-                "controlwardsbought",
-                "visionscore",
-                "vspm",
-                "totalgold",
-                "earned gpm",
-                "earnedgoldshare",
-                "goldspent",
-                "minionkills",
-                "monsterkills",
-                "monsterkillsownjungle",
-                "monsterkillsenemyjungle",
-                "cspm",
-                "golddiffat10",
-                "xpdiffat10",
-                "csdiffat10",
-                "golddiffat15",
-                "xpdiffat15",
-                "csdiffat15",
-                "team kpm",
-                "ckpm",
-                "opp_goldat15",
-                "opp_xpat15",
-                "opp_csat15",
-                "opp_killsat15",
-                "opp_assistsat15",
-                "opp_deathsat15",
-                "opp_killsat10",
-                "opp_assistsat10",
-                "opp_deathsat10",
-                "opp_goldat10",
-                "opp_xpat10",
-                "opp_csat10",
-                "date",
-                "champion",
-                "goldat10",
-                "xpat10",
-                "csat10",
-                "killsat10",
-                "assistsat10",
-                "deathsat10",
-                "gamelength",
-                "game", "player", "team"]
-
     def __SplitData__(self) -> None:
 
-        x_data = self.__df__[["position_bot", "position_jng", "position_mid", "position_sup", "position_top", "kills", "deaths",
-                              "assists", "damagetochampions", "wardsplaced", "earnedgold", "total cs"]]
-
+        x_data = self.__df__[self.__dfColumnNames__]
         y_data = np.array(self.__df__['result']).reshape(-1, 1)
 
         self.__x_train__, self.__x_test__, self.__y_train__, self.__y_test__ = train_test_split(
             x_data, y_data, test_size=0.3, random_state=42)
 
-    def __ReplaceCatsWithDummies__(self) -> None:
+    def __SelectFeatures__(self) -> None:
 
+        if self.__fileContext__ == "Player":
+            self.__dfColumnNames__ = ["kills", "deaths",
+                                      "assists",
+                                      ]
+
+        if self.__fileContext__ == "Team":
+            self.__dfColumnNames__ = ["dragons", "kills",	"deaths", "assists",
+                                      ]
+
+    def __ReplaceCategoricalDataWithDummyData__(self) -> None:
         self.__df__ = pd.get_dummies(self.__df__,
-                                     columns=['position'])
-
-        self.__dfColumnNames__ = self.__df__.columns.tolist()
+                                     columns=['position', 'side'])
 
     def __NormalizeDataFrames__(self) -> None:
         scaler = StandardScaler()
@@ -242,20 +58,7 @@ class DataProcessor:
         for column in self.__df__.columns:
             print(column)
 
-    def GetXTrainDataFrame(self) -> DataFrame:
-        return self.__x_train__
-
-    def GetXTestDataFrame(self) -> DataFrame:
-        return self.__x_test__
-
-    def GetYTrainDataFrame(self) -> DataFrame:
-        return self.__y_train__
-
-    def GetYTestDataFrame(self) -> DataFrame:
-        return self.__y_test__
-
-    def __MakeNpArraysDataFrames__(self):
-        self.__dfColumnNames__.remove("result")
+    def __MakeNpArraysDataFrames__(self) -> None:
 
         self.__x_train__ = pd.DataFrame(self.__x_train__)
         self.__x_train__.columns = self.__dfColumnNames__
@@ -269,5 +72,5 @@ class DataProcessor:
         self.__y_test__ = pd.DataFrame(self.__y_test__)
         self.__x_test__.columns = self.__dfColumnNames__
 
-    def GetDataFrames(self):
+    def GetDataFrames(self) -> List:
         return [self.__x_train__, self.__x_test__, self.__y_train__, self.__y_test__]

@@ -15,6 +15,11 @@ class ModelProcessor:
         self.__linearRegressor__ = LinearRegression()
         self.__linearRegressor__.fit(self.__x_train__, self.__y_train__)
 
+    def __ExecuteLogisticRegression__(self) -> None:
+        self.__logisticRegression__ = LogisticRegression(max_iter=10000)
+        self.__logisticRegression__.fit(
+            self.__x_train__, self.__y_train__.values.ravel())
+
     def GetPredictionLinearRegression(self) -> pd.DataFrame:
         y_pred = pd.DataFrame(
             self.__linearRegressor__.predict(self.__x_train__))
@@ -22,11 +27,6 @@ class ModelProcessor:
         df = pd.concat([self.__y_test__.head(), y_pred.head()],
                        ignore_index=True, sort=False, axis=1)
         return df
-
-    def __ExecuteLogisticRegression__(self) -> None:
-        self.__logisticRegression__ = LogisticRegression()
-        self.__logisticRegression__.fit(
-            self.__x_train__, self.__y_train__.values.ravel())
 
     def GetPredictionLogisticRegression(self) -> pd.DataFrame:
         predictions = self.__logisticRegression__.predict(self.__x_test__)
